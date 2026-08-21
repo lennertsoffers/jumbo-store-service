@@ -1,5 +1,7 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidOpeningHoursException;
+
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -18,7 +20,11 @@ public record OpeningHours(
         Objects.requireNonNull(opensAt, "opensAt must not be null");
         Objects.requireNonNull(closesAt, "closesAt must not be null");
 
-        // TODO: throw InvalidOpeningHoursException when opensAt is not strictly before closesAt
+        if (!opensAt.isBefore(closesAt)) {
+            throw new InvalidOpeningHoursException(
+                String.format("opensAt (%s) must be strictly before closesAt (%s)", opensAt, closesAt)
+            );
+        }
     }
 
     /**

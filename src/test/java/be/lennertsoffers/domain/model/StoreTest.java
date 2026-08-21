@@ -1,7 +1,11 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidStoreException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Instant;
 import java.time.LocalTime;
@@ -45,6 +49,26 @@ class StoreTest {
         Store store = new Store("1", " Jumbo Meir ", ADDRESS, COORDINATES, OPENING_HOURS, ZONE_ID);
 
         assertThat(store.getName()).isEqualTo("Jumbo Meir");
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" ", "\t"})
+    @DisplayName("Should throw InvalidStoreException when id is empty or blank")
+    void constructor_shouldThrowInvalidStoreException_whenIdIsBlank(String id) {
+        assertThatThrownBy(() -> new Store(id, "Jumbo Meir", ADDRESS, COORDINATES, OPENING_HOURS, ZONE_ID))
+            .isInstanceOf(InvalidStoreException.class)
+            .hasMessage("id must not be blank");
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" ", "\t"})
+    @DisplayName("Should throw InvalidStoreException when name is empty or blank")
+    void constructor_shouldThrowInvalidStoreException_whenNameIsBlank(String name) {
+        assertThatThrownBy(() -> new Store("1", name, ADDRESS, COORDINATES, OPENING_HOURS, ZONE_ID))
+            .isInstanceOf(InvalidStoreException.class)
+            .hasMessage("name must not be blank");
     }
 
     @Test

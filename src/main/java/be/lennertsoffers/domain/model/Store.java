@@ -1,5 +1,7 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidStoreException;
+
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -100,7 +102,9 @@ public final class Store {
     private static String requireNonBlank(String value, String fieldName) {
         Objects.requireNonNull(value, fieldName + " must not be null");
 
-        // TODO: throw InvalidStoreException when value is blank
+        if (value.isBlank()) {
+            throw new InvalidStoreException(fieldName + " must not be blank");
+        }
 
         return value;
     }

@@ -1,5 +1,7 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidAddressException;
+
 import java.util.Objects;
 
 /**
@@ -26,7 +28,9 @@ public record Address(
     private static String requireNonBlank(String value, String fieldName) {
         Objects.requireNonNull(value, fieldName + " must not be null");
 
-        // TODO: throw InvalidAddressException when value is blank
+        if (value.isBlank()) {
+            throw new InvalidAddressException(fieldName + " must not be blank");
+        }
 
         return value;
     }

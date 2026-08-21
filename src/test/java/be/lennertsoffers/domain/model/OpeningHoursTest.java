@@ -1,5 +1,6 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidOpeningHoursException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,24 @@ class OpeningHoursTest {
 
         assertThat(openingHours.opensAt()).isEqualTo(LocalTime.of(9, 0));
         assertThat(openingHours.closesAt()).isEqualTo(LocalTime.of(18, 0));
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidOpeningHoursException when opensAt equals closesAt")
+    void constructor_shouldThrowInvalidOpeningHoursException_whenOpensAtEqualsClosesAt() {
+        LocalTime time = LocalTime.of(9, 0);
+
+        assertThatThrownBy(() -> new OpeningHours(time, time))
+            .isInstanceOf(InvalidOpeningHoursException.class)
+            .hasMessage("opensAt (09:00) must be strictly before closesAt (09:00)");
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidOpeningHoursException when opensAt is after closesAt")
+    void constructor_shouldThrowInvalidOpeningHoursException_whenOpensAtIsAfterClosesAt() {
+        assertThatThrownBy(() -> new OpeningHours(LocalTime.of(18, 0), LocalTime.of(9, 0)))
+            .isInstanceOf(InvalidOpeningHoursException.class)
+            .hasMessage("opensAt (18:00) must be strictly before closesAt (09:00)");
     }
 
     @Test

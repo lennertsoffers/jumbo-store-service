@@ -1,5 +1,6 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidAddressException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,6 +34,36 @@ class AddressTest {
         assertThat(address.postalCode()).isEqualTo("2000");
         assertThat(address.street()).isEqualTo("Meir");
         assertThat(address.houseNumber()).isEqualTo("1");
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" ", "\t", "\n"})
+    @DisplayName("Should throw InvalidAddressException when city is empty or blank")
+    void constructor_shouldThrowInvalidAddressException_whenCityIsBlank(String city) {
+        assertThatThrownBy(() -> new Address(city, "2000", "Meir", "1"))
+            .isInstanceOf(InvalidAddressException.class)
+            .hasMessage("city must not be blank");
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" ", "\t", "\n"})
+    @DisplayName("Should throw InvalidAddressException when postalCode is empty or blank")
+    void constructor_shouldThrowInvalidAddressException_whenPostalCodeIsBlank(String postalCode) {
+        assertThatThrownBy(() -> new Address("Antwerp", postalCode, "Meir", "1"))
+            .isInstanceOf(InvalidAddressException.class)
+            .hasMessage("postalCode must not be blank");
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" ", "\t", "\n"})
+    @DisplayName("Should throw InvalidAddressException when street is empty or blank")
+    void constructor_shouldThrowInvalidAddressException_whenStreetIsBlank(String street) {
+        assertThatThrownBy(() -> new Address("Antwerp", "2000", street, "1"))
+            .isInstanceOf(InvalidAddressException.class)
+            .hasMessage("street must not be blank");
     }
 
     @ParameterizedTest

@@ -1,5 +1,7 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidDistanceException;
+
 import java.util.Objects;
 
 /**
@@ -16,7 +18,9 @@ public record StoreWithDistance(
     public StoreWithDistance {
         Objects.requireNonNull(store, "store must not be null");
 
-        // TODO: throw InvalidDistanceException when distanceInKm is not finite or negative
+        if (!Double.isFinite(distanceInKm) || distanceInKm < 0.0) {
+            throw new InvalidDistanceException(distanceInKm);
+        }
     }
 
 }

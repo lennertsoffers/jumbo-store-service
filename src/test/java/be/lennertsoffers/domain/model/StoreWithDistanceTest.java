@@ -1,7 +1,10 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidDistanceException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -39,6 +42,17 @@ class StoreWithDistanceTest {
         StoreWithDistance storeWithDistance = new StoreWithDistance(store("1"), 0.0);
 
         assertThat(storeWithDistance.distanceInKm()).isEqualTo(0.0);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-0.001, -1.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN})
+    @DisplayName("Should throw InvalidDistanceException when distance is negative or not finite")
+    void constructor_shouldThrowInvalidDistanceException_whenDistanceIsNegativeOrNotFinite(double distanceInKm) {
+        Store store = store("1");
+
+        assertThatThrownBy(() -> new StoreWithDistance(store, distanceInKm))
+            .isInstanceOf(InvalidDistanceException.class)
+            .hasMessage(String.format("Distance must be a finite, non-negative number, but was: %f", distanceInKm));
     }
 
     @Test

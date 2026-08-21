@@ -1,5 +1,7 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidCoordinatesException;
+
 import java.util.Objects;
 
 /**
@@ -20,8 +22,13 @@ public record Coordinates(
     private static final double EARTH_RADIUS_KM = 6371.0;
 
     public Coordinates {
-        // TODO: throw InvalidCoordinatesException when latitude is NaN or outside [MIN_LATITUDE, MAX_LATITUDE]
-        // TODO: throw InvalidCoordinatesException when longitude is NaN or outside [MIN_LONGITUDE, MAX_LONGITUDE]
+        if (Double.isNaN(latitude) || latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
+            throw new InvalidCoordinatesException("Latitude must be between " + MIN_LATITUDE + " and " + MAX_LATITUDE + ". Got: " + latitude);
+        }
+
+        if (Double.isNaN(longitude) || longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
+            throw new InvalidCoordinatesException("Longitude must be between " + MIN_LONGITUDE + " and " + MAX_LONGITUDE + ". Got: " + longitude);
+        }
     }
 
     /**

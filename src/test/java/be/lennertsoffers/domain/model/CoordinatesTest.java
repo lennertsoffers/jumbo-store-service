@@ -1,9 +1,11 @@
 package be.lennertsoffers.domain.model;
 
+import be.lennertsoffers.domain.exception.InvalidCoordinatesException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -24,6 +26,24 @@ class CoordinatesTest {
 
         assertThat(coordinates.latitude()).isEqualTo(latitude);
         assertThat(coordinates.longitude()).isEqualTo(longitude);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-90.1, -1000.0, 90.1, 1000.0, Double.NaN})
+    @DisplayName("Should throw InvalidCoordinatesException when latitude is out of the -90 to 90 range")
+    void constructor_shouldThrowInvalidCoordinatesException_whenLatitudeIsOutOfRange(double latitude) {
+        assertThatThrownBy(() -> new Coordinates(latitude, 0.0))
+            .isInstanceOf(InvalidCoordinatesException.class)
+            .hasMessageContaining("Latitude must be between -90.0 and 90.0");
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-180.1, -1000.0, 180.1, 1000.0, Double.NaN})
+    @DisplayName("Should throw InvalidCoordinatesException when longitude is out of the -180 to 180 range")
+    void constructor_shouldThrowInvalidCoordinatesException_whenLongitudeIsOutOfRange(double longitude) {
+        assertThatThrownBy(() -> new Coordinates(0.0, longitude))
+            .isInstanceOf(InvalidCoordinatesException.class)
+            .hasMessageContaining("Longitude must be between -180.0 and 180.0");
     }
 
     @ParameterizedTest
