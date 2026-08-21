@@ -1,0 +1,11 @@
+spring:
+    application:
+        name: "store-service"
+    threads:
+        virtual:
+            enabled: true
+
+logging:
+    level:
+        root: info
+        be.lennertsoffers: debug
