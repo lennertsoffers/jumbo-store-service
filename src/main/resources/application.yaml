@@ -5,6 +5,11 @@ spring:
         virtual:
             enabled: true
 
+store-service:
+    store:
+        dataset-location: "classpath:stores.json"
+        timezone: "Europe/Amsterdam"
+
 logging:
     level:
         root: info
