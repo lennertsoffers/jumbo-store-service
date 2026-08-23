@@ -1,0 +1,160 @@
+### Nearest Stores API - Validation & Error Scenarios
+###
+### These requests intentionally send invalid input to GET /api/v1/stores and
+### assert that the service responds with a 400 Bad Request ProblemDetail body,
+### as produced by be.lennertsoffers.infrastructure.rest.GlobalExceptionHandler.
+###
+### Select the "local" environment in IntelliJ HTTP Client before running these
+### requests.
+
+### 1. Missing latitude
+GET {{baseUrl}}/api/v1/stores?longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+
+    client.test("Reports latitude as required", function() {
+        client.assert(response.body.errors.latitude !== undefined, "Expected a latitude validation error");
+    });
+%}
+
+### 2. Missing longitude
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+
+    client.test("Reports longitude as required", function() {
+        client.assert(response.body.errors.longitude !== undefined, "Expected a longitude validation error");
+    });
+%}
+
+### 3. Missing both coordinates
+GET {{baseUrl}}/api/v1/stores
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 4. Latitude above valid range (> 90)
+GET {{baseUrl}}/api/v1/stores?latitude=90.1&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 5. Latitude below valid range (< -90)
+GET {{baseUrl}}/api/v1/stores?latitude=-90.1&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 6. Longitude above valid range (> 180)
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude=180.1
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 7. Longitude below valid range (< -180)
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude=-180.1
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 8. Limit exceeds the maximum of 50
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit=51
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+
+    client.test("Reports limit as invalid", function() {
+        client.assert(response.body.errors.limit !== undefined, "Expected a limit validation error");
+    });
+%}
+
+### 9. Limit is zero (must be positive)
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit=0
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 10. Limit is negative
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit=-1
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 11. Latitude is not a number
+GET {{baseUrl}}/api/v1/stores?latitude=not-a-number&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 12. Longitude is not a number
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude=not-a-number
+Accept: application/json
+
+> {%
+    client.test("Status is 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### 13. Unknown HTTP method on the collection endpoint
+POST {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 405 Method Not Allowed", function() {
+        client.assert(response.status === 405, "Expected 405 but got " + response.status);
+    });
+%}
+
+### 14. Unknown route
+GET {{baseUrl}}/api/v1/unknown
+Accept: application/json
+
+> {%
+    client.test("Status is 404 Not Found", function() {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}

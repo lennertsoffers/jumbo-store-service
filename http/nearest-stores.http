@@ -1,0 +1,115 @@
+### Nearest Stores API
+###
+### These requests exercise GET /api/v1/stores against a locally running instance
+### of the store-service (default port 8080, see src/main/resources/application.yaml).
+###
+### Select the "local" environment in IntelliJ HTTP Client before running these
+### requests. Environment variables (baseUrl, latitude, longitude, limit, openOnly)
+### are defined in http-client.env.json and can be overridden per-developer in
+### http-client.private.env.json (gitignored).
+
+### 1. Find nearest stores using default query parameters (limit=5, open=false)
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+
+    client.test("Returns at most 5 stores by default", function() {
+        client.assert(response.body.length <= 5, "Expected at most 5 stores");
+    });
+%}
+
+### 2. Find nearest stores with an explicit limit
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit={{limit}}
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+
+    client.test("Result count does not exceed requested limit", function() {
+        client.assert(response.body.length <= 5, "Expected at most the requested limit");
+    });
+%}
+
+### 3. Find only currently open stores
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&open={{openOnly}}
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### 4. Explicitly request all stores regardless of opening hours
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&open=false
+Accept: application/json
+
+### 5. Combine limit and open filters
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit=1&open=true
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+
+    client.test("Returns at most one store", function() {
+        client.assert(response.body.length <= 1, "Expected at most one store");
+    });
+%}
+
+### 6. Maximum allowed limit (boundary value)
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude={{longitude}}&limit=50
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### 7. Northernmost valid latitude boundary
+GET {{baseUrl}}/api/v1/stores?latitude=90&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### 8. Southernmost valid latitude boundary
+GET {{baseUrl}}/api/v1/stores?latitude=-90&longitude={{longitude}}
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### 9. Easternmost valid longitude boundary
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude=180
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### 10. Westernmost valid longitude boundary
+GET {{baseUrl}}/api/v1/stores?latitude={{latitude}}&longitude=-180
+Accept: application/json
+
+> {%
+    client.test("Status is 200 OK", function() {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
